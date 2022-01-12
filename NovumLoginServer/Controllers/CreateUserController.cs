@@ -9,8 +9,15 @@ namespace NovumLoginServer.Controllers;
 
 public class CreateUserController : Controller
 {
+    private readonly MySqlContext _dbContext;
     private CreateUserModel _model = new CreateUserModel();
-    
+
+    public CreateUserController(MySqlContext dbContext)
+    {
+        _dbContext = dbContext;
+    }
+
+
     [HttpGet]
     public IActionResult Index()
     {
@@ -19,9 +26,10 @@ public class CreateUserController : Controller
     
     [HttpPost]
     
-    public IActionResult Index(string username, string password,string repeatPassword ,string email)
+    public async Task<IActionResult> Index(string username, string password,string repeatPassword ,string email)
     {
-        Users? user = MySqlContext.Instance.Users.FirstOrDefault(u => u.Name == username);
+        // Case insensitive lookup
+        Users? user = _dbContext.Users.FirstOrDefault(u => u.Name.ToLower() == username.ToLower());
 
         if (user != null)
         {
@@ -50,10 +58,8 @@ public class CreateUserController : Controller
             .ToString(HashFactory.Crypto.CreateSHA224().ComputeString(saltedPassword, Encoding.Default).GetBytes())
             .Replace("-", "").ToLower();
 
-        var transaction = MySqlContext.Instance.Database.BeginTransaction();
-        MySqlContext.Instance.Users.Add(user);
-        MySqlContext.Instance.SaveChanges();
-        transaction.Commit();
+        await _dbContext.Users.AddAsync(user);
+        await _dbContext.SaveChangesAsync();
         
         return View("Success");
     }

@@ -4,8 +4,8 @@ using NovumLoginServer.EFCore;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-//string connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-//builder.Services.AddDbContext<MySqlContext>(options => options.UseMySQL(connectionString));
+string connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+builder.Services.AddDbContext<MySqlContext>(options => options.UseMySQL(connectionString));
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();

@@ -10,6 +10,12 @@ namespace NovumLoginServer.Controllers;
 public class LoginController : Controller
 {
     private LoginViewModel _model = new();
+    private readonly MySqlContext _dbContext;
+
+    public LoginController(MySqlContext dbContext)
+    {
+        _dbContext = dbContext;
+    }
 
     [HttpGet]
     public IActionResult Index()
@@ -19,7 +25,7 @@ public class LoginController : Controller
 
 
     [HttpPost]
-    public IActionResult Index(string username, string password)
+    public async Task<IActionResult> Index(string username, string password)
     {
         bool isofficialClient = false;
         string userAgent = Request.Headers["User-Agent"];
@@ -29,7 +35,7 @@ public class LoginController : Controller
         }
 
 
-        Users? user = MySqlContext.Instance.Users.FirstOrDefault(u => u.Name == username);
+        Users? user = _dbContext.Users.FirstOrDefault(u => u.Name == username);
 
         if (user != null)
         {
@@ -40,8 +46,7 @@ public class LoginController : Controller
                 .Replace("-", "");
             if (string.Equals(hashedString.ToLower(), user.Passhash.ToLower()))
             {
-                Sessions? session = MySqlContext.Instance.Sessions.FirstOrDefault(s => s.UserID == user.ID);
-                using var transaction = MySqlContext.Instance.Database.BeginTransaction();
+                Sessions? session = _dbContext.Sessions.FirstOrDefault(s => s.UserID == user.ID);
                 if (session == null)
                 {
                     session = new Sessions
@@ -52,8 +57,8 @@ public class LoginController : Controller
                 }
                 else
                 {
-                    MySqlContext.Instance.Sessions.Remove(session);
-                    MySqlContext.Instance.SaveChanges();
+                    _dbContext.Sessions.Remove(session);
+                    await _dbContext.SaveChangesAsync();
                 }
 
                 // if session date is expired
@@ -65,9 +70,9 @@ public class LoginController : Controller
                 session.ID = GetRandomSessionNumber(50);
                 session.Expiration = session.Expiration.AddDays(5);
 
-                MySqlContext.Instance.Sessions.Add(session);
-                MySqlContext.Instance.SaveChanges();
-                transaction.Commit();
+                await _dbContext.Sessions.AddAsync(session);
+                await _dbContext.SaveChangesAsync();
+
                 _model.Sid = session.ID;
                 _model.IsAuthenticated = true;
                 _model.IsLoginFailed = false;
