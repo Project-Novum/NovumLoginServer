@@ -1,0 +1,43 @@
+﻿@model CreateUserModel
+
+@{
+    ViewBag.Title = "title";
+    Layout = "_Layout";
+}
+
+		<div class="info">
+			<h2>Create New User</h2>
+			<br />
+			<form method="post" autocomplete="off">
+				<table class="infoForm">
+					<tr>
+						<td>Username:</td>
+						<td><input type="text" name="username" value="@Model.Username" /></td>
+					</tr>
+					<tr>
+						<td>Password:</td>
+						<td><input type="password" name="password" /></td>
+					</tr>
+					<tr>
+						<td>Repeat Password:</td>
+						<td><input type="password" name="repeatPassword" /></td>
+					</tr>
+					<tr>
+						<td>E-mail Address:</td>
+						<td><input type="text" name="email" value="@Model.Email" /></td>
+					</tr>
+		
+					<tr>
+						<td colspan="2">
+							<input type="submit" name="createUser" value="Create User" />
+						</td>
+					</tr>
+				</table>
+			</form>
+			
+			@if (Model.IsError)
+			{
+				<p class="errorMessage">@Model.ErrorMessage</p>	
+			}
+			
+		</div>

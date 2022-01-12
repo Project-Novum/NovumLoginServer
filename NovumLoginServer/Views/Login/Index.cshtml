@@ -1,0 +1,51 @@
+﻿@model NovumLoginServer.Models.LoginViewModel
+
+@{
+    ViewBag.Title = "title";
+    Layout = "_Layout";
+}
+
+@if (Model.IsAuthenticated)
+{
+    <x-sqexauth sid="@Model.Sid" lang="en-us" region="2" utc="1356916800" />
+}
+
+@if (@Model.IsAuthenticated && !Model.IsOfficialClient)
+{
+    <script>window.location="ffxiv://login_success?sessionId=@Model.Sid";</script>
+}
+<div style="width: 80%; height: 300px; margin-left: auto; margin-right: auto; margin-top: 20%">
+    <div class="contentContainer" >
+        <img style="width: 100%;" src="./img/logo.png" />
+    </div>
+
+    <div class="contentContainer">
+        <div class="info">
+            <br />
+            <form method="post" autocomplete="off">
+                <table class="infoForm">
+                    <tr>
+                        <td>Username:</td>
+                        <td><input type="text" name="username" /></td>
+                    </tr>
+                    <tr>
+                        <td>Password:</td>
+                        <td><input type="password" name="password" /></td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                            <input type="submit" name="login" value="Login" />
+                        </td>
+                    </tr>
+                </table>
+            </form>
+            
+            <a asp-controller="CreateUser" asp-action="Index" >Sign up</a>
+            @if (Model.IsLoginFailed)
+            {
+                <p class="errorMessage">Invalid Credtinatials</p>    
+            }
+            
+        </div>
+    </div>
+</div>

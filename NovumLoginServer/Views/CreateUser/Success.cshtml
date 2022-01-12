@@ -1,0 +1,18 @@
+﻿@model NovumLoginServer.Views.CreateUser.Success
+
+@{
+    ViewBag.Title = "Success";
+    Layout = "_Layout";
+}
+
+<div class="info">
+    <p>
+        User created successfully.
+    </p>
+    <p>
+        You may now use the Seventh Umbral Launcher to login and connect to this server.
+    </p>
+    <p>
+        <a asp-controller="Login" asp-action="Index">Go to Login Screen</a>
+    </p>
+</div>
