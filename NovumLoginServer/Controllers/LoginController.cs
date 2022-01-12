@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using HashLib;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using NovumLoginServer.DBModels;
 using NovumLoginServer.EFCore;
 using NovumLoginServer.Models;
@@ -46,7 +47,8 @@ public class LoginController : Controller
                 .Replace("-", "");
             if (string.Equals(hashedString.ToLower(), user.Passhash.ToLower()))
             {
-                Sessions? session = _dbContext.Sessions.FirstOrDefault(s => s.UserID == user.ID);
+                Sessions? session = await _dbContext.Sessions.FirstOrDefaultAsync(s => s.UserID == user.ID);
+
                 if (session == null)
                 {
                     session = new Sessions
@@ -69,8 +71,6 @@ public class LoginController : Controller
 
                 session.ID = GetRandomSessionNumber(50);
                 session.Expiration = session.Expiration.AddDays(5);
-
-                await _dbContext.Sessions.AddAsync(session);
                 await _dbContext.SaveChangesAsync();
 
                 _model.Sid = session.ID;

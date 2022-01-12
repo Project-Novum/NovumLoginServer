@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using HashLib;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using NovumLoginServer.DBModels;
 using NovumLoginServer.EFCore;
 using NovumLoginServer.Models;
@@ -29,7 +30,7 @@ public class CreateUserController : Controller
     public async Task<IActionResult> Index(string username, string password,string repeatPassword ,string email)
     {
         // Case insensitive lookup
-        Users? user = _dbContext.Users.FirstOrDefault(u => u.Name.ToLower() == username.ToLower());
+        Users? user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Name.ToLower() == username.ToLower());
 
         if (user != null)
         {
