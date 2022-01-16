@@ -71,6 +71,8 @@ public class LoginController : Controller
 
                 session.ID = GetRandomSessionNumber(50);
                 session.Expiration = session.Expiration.AddDays(5);
+                await _dbContext.AddAsync(session);
+
                 await _dbContext.SaveChangesAsync();
 
                 _model.Sid = session.ID;
