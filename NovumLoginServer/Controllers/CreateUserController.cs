@@ -3,17 +3,16 @@ using HashLib;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NovumLoginServer.DBModels;
-using NovumLoginServer.EFCore;
 using NovumLoginServer.Models;
 
 namespace NovumLoginServer.Controllers;
 
 public class CreateUserController : Controller
 {
-    private readonly MySqlContext _dbContext;
+    private readonly DBContext _dbContext;
     private CreateUserModel _model = new CreateUserModel();
 
-    public CreateUserController(MySqlContext dbContext)
+    public CreateUserController(DBContext dbContext)
     {
         _dbContext = dbContext;
     }
@@ -30,7 +29,7 @@ public class CreateUserController : Controller
     public async Task<IActionResult> Index(string username, string password,string repeatPassword ,string email)
     {
         // Case insensitive lookup
-        Users? user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Name.ToLower() == username.ToLower());
+        User? user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Name.ToLower() == username.ToLower());
 
         if (user != null)
         {
@@ -47,7 +46,7 @@ public class CreateUserController : Controller
             return View(_model);
         }
 
-        user = new Users
+        user = new User
         {
             Name = username,
             Email = email,
