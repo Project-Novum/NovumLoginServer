@@ -3,22 +3,19 @@ using HashLib;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NovumLoginServer.DBModels;
+using NovumLoginServer.EFCore;
 using NovumLoginServer.Models;
-using StackExchange.Redis;
-using StackExchange.Redis.Extensions.Core.Abstractions;
 
 namespace NovumLoginServer.Controllers;
 
 public class LoginController : Controller
 {
-    private readonly LoginViewModel _model = new();
-    private readonly DBContext _dbContext;
-    private readonly IRedisDatabase _redisDatabase;
+    private LoginViewModel _model = new();
+    private readonly MySqlContext _dbContext;
 
-    public LoginController(DBContext dbContext, IRedisDatabase redisDatabase)
+    public LoginController(MySqlContext dbContext)
     {
         _dbContext = dbContext;
-        _redisDatabase = redisDatabase;
     }
 
     [HttpGet]
@@ -39,7 +36,7 @@ public class LoginController : Controller
         }
 
 
-        User? user = _dbContext.Users.FirstOrDefault(u => u.Name == username);
+        Users? user = _dbContext.Users.FirstOrDefault(u => u.Name == username);
 
         if (user != null)
         {
@@ -50,12 +47,11 @@ public class LoginController : Controller
                 .Replace("-", "");
             if (string.Equals(hashedString.ToLower(), user.Passhash.ToLower()))
             {
-                /*
-                Session? session = await _dbContext.Sessions.FirstOrDefaultAsync(s => s.UserID == user.ID);
+                Sessions? session = await _dbContext.Sessions.FirstOrDefaultAsync(s => s.UserID == user.ID);
 
                 if (session == null)
                 {
-                    session = new Session
+                    session = new Sessions
                     {
                         UserID = user.ID,
                         Expiration = DateTime.Now
@@ -80,25 +76,6 @@ public class LoginController : Controller
                 await _dbContext.SaveChangesAsync();
 
                 _model.Sid = session.ID;
-                _model.IsAuthenticated = true;
-                _model.IsLoginFailed = false;
-                return View(_model);*/
-
-                // TODO: We need to check if the user is already within a valid game session so users can't multi log with the same toon
-                if (!string.IsNullOrEmpty(user.GameSessionId))
-                {
-                    // For now we just delete the current server session, we might need a "pubsub" to alert the game servers the user is trying to login
-                    // and nuke them off the server to prevent the multi login
-                    await _redisDatabase.RemoveAsync(user.GameSessionId);
-                }
-
-                string sid = GetRandomSessionNumber(50); 
-                await _redisDatabase.AddAsync($"{sid}", user.ID, TimeSpan.FromDays(1));
-
-                user.GameSessionId = sid;
-                await _dbContext.SaveChangesAsync();
-
-                _model.Sid = sid;
                 _model.IsAuthenticated = true;
                 _model.IsLoginFailed = false;
                 return View(_model);
