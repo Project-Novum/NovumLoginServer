@@ -36,7 +36,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          file: NovumLoginServer/Dockerfile
+          file: NovumSeeder/Dockerfile
           push: true
           tags: ghcr.io/project-novum/novumloginserver/novumlogin:latest
           labels: ${{ steps.meta.outputs.labels }}
