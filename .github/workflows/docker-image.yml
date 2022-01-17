@@ -2,9 +2,9 @@ name: Docker Image CI
 
 on:
   push:
-    branches: [master]
+    branches: [develop]
   pull_request:
-    branches: [master]
+    branches: [develop]
 
 jobs:
   build-and-push-image:
@@ -38,5 +38,5 @@ jobs:
           context: .
           file: NovumLoginServer/Dockerfile
           push: true
-          tags: ghcr.io/project-novum/novumloginserver/novumlogin:latest
+          tags: ghcr.io/project-novum/novumloginserver/novumlogin:develop
           labels: ${{ steps.meta.outputs.labels }}
