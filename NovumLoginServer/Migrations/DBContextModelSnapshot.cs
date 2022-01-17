@@ -34,9 +34,6 @@ namespace NovumLoginServer.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("GameSessionId")
-                        .HasColumnType("text");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
